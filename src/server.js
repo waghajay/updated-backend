@@ -15,7 +15,7 @@ app.use('/upload', require('./routes/upload'));
 app.use("/api/provider", require("./routes/Provider"))
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 const PORT = process.env.PORT || 5000;
 
