@@ -127,39 +127,61 @@ exports.getServicesForCategory = async (req, res) => {
       return res.status(400).json({ error: "Category is required" });
     }
 
-    // Fetch providers with this category AND their services
-    const providers = await Provider.findAll({
+    // Fetch all services matching category and include provider + user
+    const services = await Service.findAll({
       where: { category },
       include: [
         {
-          model: User,
-          attributes: ["name", "mobile"]
-        },
-        {
-          model: Service,
-          as: "services"
+          model: Provider,
+          include: [
+            { model: User, attributes: ["name", "mobile"] }
+          ]
         }
-      ]
+      ],
+      order: [["createdAt", "DESC"]]
     });
 
-    // Format the response
-    const result = providers.map((provider) => ({
-      providerId: provider.id,
-      providerName: provider.User?.name,
-      providerMobile: provider.User?.mobile,
-      providerCategory: provider.category,
-      providerExperience: provider.experience,
-      providerOverview: provider.overview,
-      services: provider.services || []
-    }));
+    // Group services by provider
+    const providerMap = {};
+
+    services.forEach(service => {
+      const provider = service.Provider;
+      if (!provider) return;
+
+      if (!providerMap[provider.id]) {
+        providerMap[provider.id] = {
+          providerId: provider.id,
+          providerName: provider.User?.name,
+          providerMobile: provider.User?.mobile,
+          providerCategory: provider.category,
+          providerExperience: provider.experience,
+          providerOverview: provider.overview,
+          services: []
+        };
+      }
+
+      providerMap[provider.id].services.push({
+        serviceId: service.id,
+        title: service.title,
+        description: service.description,
+        price: service.price,
+        duration: service.duration,
+        availableDays: service.availableDays,
+        locationRadius: service.locationRadius
+      });
+    });
 
     res.json({
-      message: `All services for providers in category: ${category}`,
-      providers: result
+      message: `All services grouped by provider for category: ${category}`,
+      providers: Object.values(providerMap)
     });
+
   } catch (error) {
     console.error("Fetch category services error:", error);
-    res.status(500).json({ error: "Failed to fetch services by category", "message" : error });
+    res.status(500).json({ 
+      error: "Failed to fetch services by category",
+      message: error.message
+    });
   }
 };
 

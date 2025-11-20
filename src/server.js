@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/auth', require('./routes/auth'));
 app.use('/upload', require('./routes/upload'));
 app.use("/api/provider", require("./routes/Provider"))
+app.use("/api/bookings", require("./routes/booking"));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.resolve('uploads')));

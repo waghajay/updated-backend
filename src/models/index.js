@@ -21,5 +21,15 @@ db.Rating.belongsTo(db.Provider, { foreignKey: "providerId" });
 
 db.User.hasMany(db.Rating, { foreignKey: "userId" });
 db.Rating.belongsTo(db.User, { foreignKey: "userId" });
+db.Booking = require("./Booking")(sequelize, DataTypes);
+
+db.User.hasMany(db.Booking, { foreignKey: "userId" });
+db.Booking.belongsTo(db.User, { foreignKey: "userId" });
+
+db.Provider.hasMany(db.Booking, { foreignKey: "providerId" });
+db.Booking.belongsTo(db.Provider, { foreignKey: "providerId" });
+
+db.Service.hasMany(db.Booking, { foreignKey: "serviceId" });
+db.Booking.belongsTo(db.Service, { foreignKey: "serviceId" });
 
 module.exports = db;
