@@ -9,30 +9,46 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const token = generateToken({ id: user.id, role: user.role });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user.toJSON();
+    // Convert user instance to JSON and remove password
+    const userData = user.toJSON();
+    delete userData.password;
 
-    res.cookie('token', token, {
+    // 🔥 Fetch provider if this user is a provider
+    let providerData = null;
+    if (user.role === "provider") {
+      const provider = await Provider.findOne({
+        where: { userId: user.id },
+      });
+      if (provider) {
+        providerData = provider.toJSON();
+      }
+    }
+
+    // Set cookie
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
+    // 🔥 Return both user + provider (if exists)
     res.json({
-      user: userWithoutPassword,
+      user: userData,
+      provider: providerData?.id || null,
       token,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Login failed' });
+    console.error("Login failed:", error);
+    res.status(500).json({ error: "Login failed" });
   }
 };
+
 
 exports.signupCustomer = async (req, res) => {
   const { name, email, mobile, address, password } = req.body;

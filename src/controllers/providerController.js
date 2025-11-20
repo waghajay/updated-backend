@@ -1,18 +1,15 @@
-// src/routes/provider.js
-const express = require("express");
+// src/controllers/providerController.js
 const { Service, Provider } = require("../models");
 
-exports.provider = async (req, res) => {
+exports.addService = async (req, res) => {
   try {
     const { providerId, title, category, description, price, duration, availableDays, locationRadius } = req.body;
 
-    // Verify provider exists
     const provider = await Provider.findByPk(providerId);
     if (!provider) {
       return res.status(404).json({ error: "Provider not found" });
     }
 
-    // Create service
     const service = await Service.create({
       title,
       category,

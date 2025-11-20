@@ -1,8 +1,8 @@
 // src/routes/provider.js
 const express = require("express");
 const router = express.Router();
-const { Service, Provider } = require("../models");
+const providerController = require("../controllers/providerController");
 
-router.post("/services" , Provider);
+router.post("/services", providerController.addService);
 
 module.exports = router;
