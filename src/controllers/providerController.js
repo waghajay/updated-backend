@@ -58,6 +58,83 @@ exports.getProviderFullDetails = async (req, res) => {
 };
 
 
+
+exports.getAllProvidersWithServices = async (req, res) => {
+  try {
+    const providers = await Provider.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["name", "email", "mobile", "address"]
+        },
+        {
+          model: Service,
+          as: "services"   // must match your association alias
+        }
+      ],
+      order: [
+        ["createdAt", "DESC"]
+      ]
+    });
+
+    if (!providers || providers.length === 0) {
+      return res.json({
+        message: "No providers found",
+        providers: []
+      });
+    }
+
+    const formatted = providers.map(provider => ({
+      providerId: provider.id,
+      age: provider.age,
+      gender: provider.gender,
+      category: provider.category,
+      experience: provider.experience,
+      price: provider.price,
+      salaryRange: provider.salaryRange,
+      availabilityType: provider.availabilityType,
+      workType: provider.workType,
+      gpsRadius: provider.gpsRadius,
+      skills: provider.skills,
+      overview: provider.overview,
+      emergencyAvailable: provider.emergencyAvailable,
+      idProof: provider.idProof,
+
+      user: {
+        name: provider.User?.name,
+        email: provider.User?.email,
+        mobile: provider.User?.mobile,
+        address: provider.User?.address
+      },
+
+      services: provider.services?.map(s => ({
+        serviceId: s.id,
+        title: s.title,
+        category: s.category,
+        description: s.description,
+        price: s.price,
+        duration: s.duration,
+        availableDays: s.availableDays,
+        locationRadius: s.locationRadius
+      })) || []
+    }));
+
+    res.json({
+      message: "Providers with their services fetched successfully",
+      providers: formatted
+    });
+
+  } catch (error) {
+    console.error("Fetch all providers with services error:", error);
+    res.status(500).json({ 
+      error: "Failed to fetch providers with services",
+      details: error.message
+    });
+  }
+};
+
+
+
 exports.getTopProvidersByCategory = async (req, res) => {
   try {
     const { category } = req.query;

@@ -32,4 +32,18 @@ db.Booking.belongsTo(db.Provider, { foreignKey: "providerId" });
 db.Service.hasMany(db.Booking, { foreignKey: "serviceId" });
 db.Booking.belongsTo(db.Service, { foreignKey: "serviceId" });
 
+// after other model requires:
+db.Favorite = require("./Favorite")(sequelize, DataTypes);
+
+// associations
+db.User.hasMany(db.Favorite, { foreignKey: "userId" });
+db.Favorite.belongsTo(db.User, { foreignKey: "userId" });
+
+db.Provider.hasMany(db.Favorite, { foreignKey: "providerId" });
+db.Favorite.belongsTo(db.Provider, { foreignKey: "providerId" });
+
+db.Service.hasMany(db.Favorite, { foreignKey: "serviceId" });
+db.Favorite.belongsTo(db.Service, { foreignKey: "serviceId" });
+
+
 module.exports = db;
