@@ -10,6 +10,7 @@ router.post("/", auth, bookingController.createBooking);
 router.get("/user", auth, bookingController.getUserBookings);
 router.get("/dashboard", auth, bookingController.getProviderDashboardStats);
 
+router.get("/user/dashboard", auth, bookingController.getUserAcceptedBookingCount);
 
 // Provider bookings
 router.get("/provider/bookings", auth, bookingController.getProviderBookings);

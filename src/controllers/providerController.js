@@ -1,5 +1,7 @@
 // src/controllers/providerController.js
-const { Service, Provider, User, Rating } = require("../models");
+const { Service, Provider, User, Rating, sequelize } = require("../models");
+const { Op } = require("sequelize");
+
 
 exports.addService = async (req, res) => {
   try {
@@ -128,6 +130,44 @@ exports.getAllProvidersWithServices = async (req, res) => {
     console.error("Fetch all providers with services error:", error);
     res.status(500).json({ 
       error: "Failed to fetch providers with services",
+      details: error.message
+    });
+  }
+};
+
+
+exports.searchProvidersByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      return res.status(400).json({ error: "Search query 'name' is required" });
+    }
+
+    const formattedName = name.toLowerCase().trim();
+
+    const providers = await Provider.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["name", "email", "mobile", "address"],
+          where: sequelize.where(
+            sequelize.fn("lower", sequelize.col("User.name")),
+            { [Op.like]: `%${formattedName}%` }
+          )
+        }
+      ]
+    });
+
+    res.json({
+      message: "Providers fetched successfully",
+      providers
+    });
+
+  } catch (error) {
+    console.error("Search provider error:", error);
+    res.status(500).json({
+      error: "Failed to search providers",
       details: error.message
     });
   }

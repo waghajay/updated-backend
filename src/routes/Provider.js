@@ -6,6 +6,7 @@ const providerController = require("../controllers/providerController");
 router.post("/services", providerController.addService);
 router.post("/:providerId/rate", providerController.rateProvider);
 router.get("/all-proviers-services", providerController.getAllProvidersWithServices);
+router.get("/search", providerController.searchProvidersByName);
 router.get("/category/services", providerController.getServicesForCategory);
 router.get("/:providerId/services", providerController.getServicesByProvider);
 router.get("/top/list", providerController.getTopProvidersByCategory);

@@ -88,6 +88,32 @@ exports.getProviderBookings = async (req, res) => {
 };
 
 
+exports.getUserAcceptedBookingCount = async (req, res) => {
+  try {
+    const userId = req.user.id; // Logged-in customer/user ID
+
+    const acceptedCount = await Booking.count({
+      where: {
+        userId,
+        status: "accepted"
+      }
+    });
+
+    res.json({
+      message: "Accepted bookings count fetched successfully",
+      acceptedCount
+    });
+
+  } catch (error) {
+    console.error("User accepted booking count error:", error);
+    res.status(500).json({
+      error: "Failed to get accepted booking count"
+    });
+  }
+};
+
+
+
 exports.getProviderDashboardStats = async (req, res) => {
   try {
     const userId = req.user.id; // logged-in user's ID
